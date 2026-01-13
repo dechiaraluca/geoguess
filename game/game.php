@@ -8,13 +8,11 @@
  */
 function startGameSession($playerName, $pdo) {
     try {
-        // Créer ou récupérer le joueur
         $stmt = $pdo->prepare("SELECT id_player FROM players WHERE name = :name");
         $stmt->execute(['name' => $playerName]);
         $player = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$player) {
-            // Créer nouveau joueur
             $stmt = $pdo->prepare("INSERT INTO players (name) VALUES (:name)");
             $stmt->execute(['name' => $playerName]);
             $idPlayer = $pdo->lastInsertId();
@@ -22,7 +20,6 @@ function startGameSession($playerName, $pdo) {
             $idPlayer = $player['id_player'];
         }
 
-        // Créer une nouvelle session de jeu
         $stmt = $pdo->prepare("
             INSERT INTO game_sessions (id_player, lives_remaining, current_score, status)
             VALUES (:id_player, 5, 0, 'in_progress')
@@ -55,7 +52,6 @@ function startGameSession($playerName, $pdo) {
  */
 function getRandomCityWithImages($pdo) {
     try {
-        // Récupérer une ville aléatoire qui a des images
         $stmt = $pdo->query("
             SELECT DISTINCT c.id_city, c.name as city_name,
                    co.id_country, co.name as country_name, co.code as country_code
@@ -76,7 +72,6 @@ function getRandomCityWithImages($pdo) {
             ];
         }
 
-        // Récupérer les images de cette ville (max 6 pour l'affichage)
         $stmt = $pdo->prepare("
             SELECT id_image, url, title
             FROM images
@@ -131,13 +126,11 @@ function validateAnswer($sessionId, $cityId, $guessedCountry, $pdo) {
             return ['success' => false, 'error' => 'Ville introuvable'];
         }
 
-        // Vérifier si la réponse est correcte (nom du pays ou code pays)
         $isCorrect = (
             strcasecmp($guessedCountry, $city['country_name']) === 0 ||
             strcasecmp($guessedCountry, $city['code']) === 0
         );
 
-        // Récupérer la session actuelle
         $stmt = $pdo->prepare("
             SELECT lives_remaining, current_score
             FROM game_sessions
@@ -150,17 +143,15 @@ function validateAnswer($sessionId, $cityId, $guessedCountry, $pdo) {
             return ['success' => false, 'error' => 'Session introuvable'];
         }
 
-        // Calculer le nouveau score et les vies
         $newScore = $session['current_score'];
         $livesRemaining = $session['lives_remaining'];
 
         if ($isCorrect) {
-            $newScore += 10; // Points pour bonne réponse
+            $newScore += 10;
         } else {
-            $livesRemaining -= 1; // Perd une vie
+            $livesRemaining -= 1;
         }
 
-        // Enregistrer la réponse
         $stmt = $pdo->prepare("
             INSERT INTO answers (id_session, id_city, guessed_country, is_correct)
             VALUES (:session_id, :city_id, :guessed, :correct)
@@ -172,7 +163,6 @@ function validateAnswer($sessionId, $cityId, $guessedCountry, $pdo) {
             'correct' => $isCorrect ? 1 : 0
         ]);
 
-        // Mettre à jour la session
         $gameStatus = $livesRemaining <= 0 ? 'completed' : 'in_progress';
 
         $stmt = $pdo->prepare("
@@ -253,12 +243,10 @@ function getSessionState($sessionId, $pdo) {
  */
 function getCountryChoices($correctCountryId, $pdo, $count = 4) {
     try {
-        // Récupérer le pays correct
         $stmt = $pdo->prepare("SELECT id_country, name, code FROM countries WHERE id_country = :id");
         $stmt->execute(['id' => $correctCountryId]);
         $correctCountry = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Récupérer d'autres pays aléatoires
         $stmt = $pdo->prepare("
             SELECT id_country, name, code
             FROM countries
@@ -272,7 +260,6 @@ function getCountryChoices($correctCountryId, $pdo, $count = 4) {
         ]);
         $otherCountries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Combiner et mélanger
         $choices = array_merge([$correctCountry], $otherCountries);
         shuffle($choices);
 
