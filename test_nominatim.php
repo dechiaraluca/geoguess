@@ -26,7 +26,7 @@ foreach ($testCountries as $countryName) {
 
     $result = findOrCreateCountry($countryName, $pdo);
 
-    if ($result['success']) {
+    if (isset($result['success']) && $result['success']) {
         echo "✓ Succès\n";
         echo "Source : " . $result['source'] . "\n";
         echo "ID : " . $result['data']['id_country'] . "\n";
