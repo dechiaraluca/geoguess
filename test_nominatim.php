@@ -1,9 +1,4 @@
 <?php
-/**
- * Script de test pour l'API Nominatim
- * À exécuter via : php test_nominatim.php
- * Ou via navigateur : http://localhost/projets/geoguess/test_nominatim.php
- */
 
 require_once 'config/database.php';
 require_once 'api/nominatim.php';
@@ -40,13 +35,11 @@ foreach ($testCountries as $countryName) {
 
     echo "\n";
 
-    // Pause pour respecter le rate limiting (1 seconde entre chaque requête)
     if ($result['source'] === 'nominatim') {
         sleep(1);
     }
 }
 
-// Vérifier les pays dans la base de données
 echo "=== Pays dans la base de données ===\n";
 $stmt = $pdo->query("SELECT * FROM countries ORDER BY id_country");
 $countries = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -64,5 +57,3 @@ if (empty($countries)) {
         );
     }
 }
-
-echo "\n✓ Tests terminés\n";

@@ -21,7 +21,6 @@ function searchCountry($countryName) {
     ]);
     
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    // Désactiver la vérification SSL pour l'environnement de développement local
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
     sleep(1);
