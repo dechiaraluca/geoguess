@@ -112,7 +112,6 @@ function getRandomCityWithImages($pdo) {
  */
 function validateAnswer($sessionId, $cityId, $guessedCountry, $pdo) {
     try {
-        // Récupérer la ville et le pays correct
         $stmt = $pdo->prepare("
             SELECT c.name as city_name, co.id_country, co.name as country_name, co.code
             FROM cities c
@@ -165,14 +164,25 @@ function validateAnswer($sessionId, $cityId, $guessedCountry, $pdo) {
 
         $gameStatus = $livesRemaining <= 0 ? 'completed' : 'in_progress';
 
-        $stmt = $pdo->prepare("
-            UPDATE game_sessions
-            SET current_score = :score,
-                lives_remaining = :lives,
-                status = :status,
-                ended_at = " . ($gameStatus === 'completed' ? 'NOW()' : 'NULL') . "
-            WHERE id_session = :id
-        ");
+        if ($gameStatus === 'completed') {
+            $stmt = $pdo->prepare("
+                UPDATE game_sessions
+                SET current_score = :score,
+                    lives_remaining = :lives,
+                    status = :status,
+                    ended_at = NOW()
+                WHERE id_session = :id
+            ");
+        } else {
+            $stmt = $pdo->prepare("
+                UPDATE game_sessions
+                SET current_score = :score,
+                    lives_remaining = :lives,
+                    status = :status
+                WHERE id_session = :id
+            ");
+        }
+
         $stmt->execute([
             'score' => $newScore,
             'lives' => $livesRemaining,
@@ -247,16 +257,16 @@ function getCountryChoices($correctCountryId, $pdo, $count = 4) {
         $stmt->execute(['id' => $correctCountryId]);
         $correctCountry = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        $limit = (int)($count - 1);
         $stmt = $pdo->prepare("
             SELECT id_country, name, code
             FROM countries
             WHERE id_country != :id
             ORDER BY RAND()
-            LIMIT :limit
+            LIMIT {$limit}
         ");
         $stmt->execute([
-            'id' => $correctCountryId,
-            'limit' => $count - 1
+            'id' => $correctCountryId
         ]);
         $otherCountries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -61,43 +61,97 @@ function searchWikipediaPage($searchTerm) {
 }
 
 /**
- * Récupère les images d'une page Wikipedia
+ * Récupère l'image principale (thumbnail) d'une page Wikipedia
  * @param int $pageId - ID de la page
- * @return array - Liste des images ou erreur
+ * @return array - Image principale ou null
  */
-function fetchPageImages($pageId) {
+function fetchMainImage($pageId) {
     $url = "https://en.wikipedia.org/w/api.php?" . http_build_query([
         'action' => 'query',
         'format' => 'json',
         'pageids' => $pageId,
-        'prop' => 'images',
-        'imlimit' => 50
+        'prop' => 'pageimages',
+        'piprop' => 'original',
+        'pilicense' => 'any'
     ]);
 
     $response = makeWikipediaRequest($url);
 
     if (isset($response['error'])) {
-        return $response;
+        return null;
+    }
+
+    if (!isset($response['query']['pages'][$pageId]['original']['source'])) {
+        return null;
+    }
+
+    return [
+        'title' => $response['query']['pages'][$pageId]['pageimage'] ?? 'Main image',
+        'url' => $response['query']['pages'][$pageId]['original']['source']
+    ];
+}
+
+/**
+ * Récupère les images d'une page Wikipedia
+ * @param int $pageId - ID de la page
+ * @return array - Liste des images ou erreur
+ */
+function fetchPageImages($pageId) {
+    $images = [];
+
+    // D'abord, essayer de récupérer l'image principale
+    $mainImage = fetchMainImage($pageId);
+    if ($mainImage) {
+        $images[] = $mainImage;
+    }
+
+    // Ensuite, récupérer les autres images de la page
+    $url = "https://en.wikipedia.org/w/api.php?" . http_build_query([
+        'action' => 'query',
+        'format' => 'json',
+        'pageids' => $pageId,
+        'prop' => 'images',
+        'imlimit' => 20
+    ]);
+
+    $response = makeWikipediaRequest($url);
+
+    if (isset($response['error'])) {
+        return empty($images) ? $response : $images;
     }
 
     if (!isset($response['query']['pages'][$pageId]['images'])) {
-        return ['error' => 'Aucune image sur cette page'];
+        return empty($images) ? ['error' => 'Aucune image sur cette page'] : $images;
     }
 
     $imageNames = $response['query']['pages'][$pageId]['images'];
 
-    $imageUrls = [];
     foreach ($imageNames as $image) {
-        $url = getImageUrl($image['title']);
-        if ($url && !isset($url['error'])) {
-            $imageUrls[] = [
-                'title' => $image['title'],
-                'url' => $url
-            ];
+        // Limiter à 10 images max
+        if (count($images) >= 10) {
+            break;
+        }
+
+        $imageUrl = getImageUrl($image['title']);
+        if ($imageUrl && !isset($imageUrl['error'])) {
+            // Éviter les doublons
+            $isDuplicate = false;
+            foreach ($images as $existingImage) {
+                if ($existingImage['url'] === $imageUrl) {
+                    $isDuplicate = true;
+                    break;
+                }
+            }
+            if (!$isDuplicate) {
+                $images[] = [
+                    'title' => $image['title'],
+                    'url' => $imageUrl
+                ];
+            }
         }
     }
 
-    return $imageUrls;
+    return $images;
 }
 
 /**

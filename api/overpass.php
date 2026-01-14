@@ -10,9 +10,10 @@ function getCitiesFromOverpass($searchArea, $limit = 50) {
     // Requête Overpass pour récupérer les villes et villages
     // place=city pour les villes, place=town pour les petites villes, place=village pour les villages
     $query = "[out:json][timeout:25];
+    area({$searchArea})->.searchArea;
     (
-        node[\"place\"=\"city\"](area:{$searchArea});
-        node[\"place\"=\"town\"](area:{$searchArea});
+        node[\"place\"=\"city\"](area.searchArea);
+        node[\"place\"=\"town\"](area.searchArea);
     );
     out body {$limit};";
 
