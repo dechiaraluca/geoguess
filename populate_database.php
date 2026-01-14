@@ -46,7 +46,7 @@ foreach ($countries as $countryName) {
     }
 
     $country = $countryResult['data'];
-    echo "  ✅ Pays : {$country['name']} (ID: {$country['id_country']})\n";
+    echo "  Pays : {$country['name']} (ID: {$country['id_country']})\n";
     $stats['countries']++;
 
     echo "  2. Récupération des villes...\n";
@@ -58,7 +58,7 @@ foreach ($countries as $countryName) {
         continue;
     }
 
-    echo "  ✅ Villes : {$citiesResult['saved']} nouvelles, {$citiesResult['skipped']} existantes\n";
+    echo "  Villes : {$citiesResult['saved']} nouvelles, {$citiesResult['skipped']} existantes\n";
     $stats['cities'] += $citiesResult['saved'];
 
     echo "  3. Récupération des images...\n";
@@ -86,12 +86,12 @@ foreach ($countries as $countryName) {
         $imagesResult = fetchAndSaveImages($city['id_city'], $pdo);
 
         if (!$imagesResult['success']) {
-            echo "      ⚠️  Aucune image trouvée\n";
+            echo "        Aucune image trouvée\n";
             $stats['errors'][] = "{$city['name']} (images): " . $imagesResult['error'];
             continue;
         }
 
-        echo "      ✅ {$imagesResult['saved']} images sauvegardées\n";
+        echo "       {$imagesResult['saved']} images sauvegardées\n";
         $stats['images'] += $imagesResult['saved'];
 
         sleep(1);
