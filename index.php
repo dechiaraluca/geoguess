@@ -98,12 +98,8 @@
         <div class="spinner"></div>
         <p>Chargement...</p>
     </div>
-<!-- <?php
-include 'api/nominatim.php';
-var_dump (searchCountry('France'));
-
-?>
-    <script src="assets/game.js"></script> -->
+    
+    <script src="assets/game.js"></script>
 
 </body>
 </html>
