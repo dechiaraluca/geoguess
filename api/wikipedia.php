@@ -225,12 +225,12 @@ function makeWikipediaRequest($url) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'GeoGuessrEducationalProject/1.0 (l.dechiara.dev@gmail.com)');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'GeoGuess/1.0 (your.email@example.com)');
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_FORBID_REUSE, TRUE);
 
-    // Rate limiting
-    usleep(100000); // 100ms entre chaque requête
+    usleep(100000);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -12,13 +12,7 @@ function searchCountry($countryName) {
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
-    curl_setopt($ch, CURLOPT_USERAGENT, 'GeoGuessrEducationalProject/1.0 (your.email@example.com)');
-    
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Accept: application/json',
-        'Accept-Language: fr-FR,fr;q=0.9,en;q=0.8',
-        'Referer: https://nominatim.openstreetmap.org/'
-    ]);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'test geoguess');
     
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -44,7 +38,7 @@ function searchCountry($countryName) {
         return ['error' => 'Pays non trouvé'];
     }
     
-    return $data[0];
+    return $data;
 }
 
 function calculateSearchArea($osmId, $osmType) {
