@@ -12,7 +12,7 @@ function searchCountry($countryName) {
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
-    curl_setopt($ch, CURLOPT_USERAGENT, 'GeoGuessrEducationalProject/1.0 (l.dechiara.dev@gmail.com)');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'GeoGuessrEducationalProject/1.0 (your.email@example.com)');
     
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
