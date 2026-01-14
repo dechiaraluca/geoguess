@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <!-- Écran d'accueil -->
     <div id="welcome-screen" class="screen active">
         <div class="container">
             <h1>GeoGuess</h1>
@@ -30,10 +29,8 @@
         </div>
     </div>
 
-    <!-- Écran de jeu -->
     <div id="game-screen" class="screen">
         <div class="container">
-            <!-- Header avec stats -->
             <div class="game-header">
                 <div class="stat">
                     <span class="label">Joueur:</span>
@@ -49,22 +46,16 @@
                 </div>
             </div>
 
-            <!-- Zone d'images -->
             <div class="images-grid" id="images-grid">
-                <!-- Images seront injectées ici -->
             </div>
 
-            <!-- Question -->
             <div class="question-box">
                 <h2>De quel pays viennent ces images ?</h2>
 
-                <!-- Choix multiples -->
                 <div class="choices" id="choices-container">
-                    <!-- Boutons seront injectés ici -->
                 </div>
             </div>
 
-            <!-- Feedback -->
             <div id="feedback" class="feedback hidden">
                 <p id="feedback-text"></p>
                 <button id="next-btn" class="btn btn-primary">Question suivante</button>
@@ -72,11 +63,10 @@
         </div>
     </div>
 
-    <!-- Écran de fin -->
     <div id="gameover-screen" class="screen">
         <div class="container">
             <div class="gameover-box">
-                <h1>🎮 Partie terminée !</h1>
+                <h1> Partie terminée !</h1>
 
                 <div class="final-stats">
                     <div class="stat-item">
@@ -94,9 +84,8 @@
                 </div>
 
                 <div class="leaderboard" id="leaderboard">
-                    <h2>🏆 Classement</h2>
+                    <h2> Classement</h2>
                     <table id="leaderboard-table">
-                        <!-- Tableau sera injecté ici -->
                     </table>
                 </div>
 
@@ -105,7 +94,6 @@
         </div>
     </div>
 
-    <!-- Loading -->
     <div id="loading" class="loading hidden">
         <div class="spinner"></div>
         <p>Chargement...</p>
