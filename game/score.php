@@ -8,7 +8,6 @@
  */
 function saveFinalScore($sessionId, $pdo) {
     try {
-        // Récupérer les infos de la session
         $stmt = $pdo->prepare("
             SELECT id_player, current_score, lives_remaining, status
             FROM game_sessions
@@ -25,14 +24,12 @@ function saveFinalScore($sessionId, $pdo) {
             return ['success' => false, 'error' => 'La session n\'est pas terminée'];
         }
 
-        // Vérifier si le score existe déjà
         $stmt = $pdo->prepare("SELECT id_score FROM scores WHERE id_session = :id");
         $stmt->execute(['id' => $sessionId]);
         if ($stmt->fetch()) {
             return ['success' => false, 'error' => 'Score déjà enregistré'];
         }
 
-        // Compter les réponses
         $stmt = $pdo->prepare("
             SELECT
                 COUNT(*) as total_questions,
@@ -43,10 +40,8 @@ function saveFinalScore($sessionId, $pdo) {
         $stmt->execute(['id' => $sessionId]);
         $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Calculer les vies utilisées
         $livesUsed = 5 - $session['lives_remaining'];
 
-        // Enregistrer le score
         $stmt = $pdo->prepare("
             INSERT INTO scores (
                 id_player, id_session, final_score,
@@ -128,7 +123,6 @@ function getLeaderboard($pdo, $limit = 10) {
  */
 function getPlayerStats($playerId, $pdo) {
     try {
-        // Récupérer le joueur
         $stmt = $pdo->prepare("SELECT name FROM players WHERE id_player = :id");
         $stmt->execute(['id' => $playerId]);
         $player = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -137,7 +131,6 @@ function getPlayerStats($playerId, $pdo) {
             return ['success' => false, 'error' => 'Joueur introuvable'];
         }
 
-        // Statistiques globales
         $stmt = $pdo->prepare("
             SELECT
                 COUNT(*) as total_games,
@@ -151,7 +144,6 @@ function getPlayerStats($playerId, $pdo) {
         $stmt->execute(['id' => $playerId]);
         $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Dernières parties
         $stmt = $pdo->prepare("
             SELECT final_score, correct_answers, total_questions, created_at
             FROM scores

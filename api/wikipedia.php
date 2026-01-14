@@ -127,14 +127,12 @@ function fetchPageImages($pageId) {
     $imageNames = $response['query']['pages'][$pageId]['images'];
 
     foreach ($imageNames as $image) {
-        // Limiter à 10 images max
         if (count($images) >= 10) {
             break;
         }
 
         $imageUrl = getImageUrl($image['title']);
         if ($imageUrl && !isset($imageUrl['error'])) {
-            // Éviter les doublons
             $isDuplicate = false;
             foreach ($images as $existingImage) {
                 if ($existingImage['url'] === $imageUrl) {

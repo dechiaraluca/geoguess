@@ -1,7 +1,6 @@
 <?php
 /**
- * API Endpoint pour le jeu GeoGuessr
- * Gère toutes les actions AJAX depuis le frontend
+ * API Endpoint pour le jeu GeoGuess
  */
 
 header('Content-Type: application/json');
@@ -49,9 +48,6 @@ switch ($action) {
         echo json_encode(['success' => false, 'error' => 'Action invalide']);
 }
 
-/**
- * Démarre une nouvelle session de jeu
- */
 function handleStartSession($input, $pdo) {
     $playerName = $input['player_name'] ?? '';
 
@@ -64,11 +60,7 @@ function handleStartSession($input, $pdo) {
     echo json_encode($result);
 }
 
-/**
- * Récupère une question (ville + images + choix)
- */
 function handleGetQuestion($pdo) {
-    // Récupérer une ville aléatoire avec images
     $cityResult = getRandomCityWithImages($pdo);
 
     if (!$cityResult['success']) {
@@ -78,8 +70,6 @@ function handleGetQuestion($pdo) {
 
     $city = $cityResult['city'];
     $images = $cityResult['images'];
-
-    // Récupérer les choix multiples
     $choicesResult = getCountryChoices($city['country_id'], $pdo, 4);
 
     if (!$choicesResult['success']) {
@@ -95,9 +85,6 @@ function handleGetQuestion($pdo) {
     ]);
 }
 
-/**
- * Valide la réponse du joueur
- */
 function handleSubmitAnswer($input, $pdo) {
     $sessionId = $input['session_id'] ?? 0;
     $cityId = $input['city_id'] ?? 0;
@@ -112,9 +99,6 @@ function handleSubmitAnswer($input, $pdo) {
     echo json_encode($result);
 }
 
-/**
- * Sauvegarde le score final
- */
 function handleSaveScore($input, $pdo) {
     $sessionId = $input['session_id'] ?? 0;
 
@@ -127,9 +111,6 @@ function handleSaveScore($input, $pdo) {
     echo json_encode($result);
 }
 
-/**
- * Récupère le classement
- */
 function handleGetLeaderboard($pdo) {
     $result = getLeaderboard($pdo, 10);
     echo json_encode($result);

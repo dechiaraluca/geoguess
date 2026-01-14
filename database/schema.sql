@@ -1,17 +1,15 @@
--- Table des pays/régions (résultat Nominatim API)
 CREATE TABLE IF NOT EXISTS `countries` (
     `id_country` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
     `code` VARCHAR(2) NOT NULL UNIQUE,
     `osm_id` BIGINT NOT NULL UNIQUE,
-    `search_area` BIGINT NOT NULL,  -- Pour requêtes Overpass
+    `search_area` BIGINT NOT NULL, 
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(`id_country`),
     INDEX idx_osm_id (`osm_id`),
     INDEX idx_search_area (`search_area`)
 );
 
--- Table des villes (résultat Overpass API)
 CREATE TABLE IF NOT EXISTS `cities` (
     `id_city` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
@@ -25,7 +23,6 @@ CREATE TABLE IF NOT EXISTS `cities` (
     INDEX idx_osm_id (`osm_id`)
 );
 
--- Table des images (résultat Wikipedia API)
 CREATE TABLE IF NOT EXISTS `images` (
     `id_image` INT NOT NULL AUTO_INCREMENT,
     `url` VARCHAR(500) NOT NULL,
@@ -40,7 +37,6 @@ CREATE TABLE IF NOT EXISTS `images` (
     INDEX idx_valid (`is_valid`)
 );
 
--- Table des joueurs
 CREATE TABLE IF NOT EXISTS `players` (
     `id_player` INT NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(50) NOT NULL,
@@ -49,7 +45,6 @@ CREATE TABLE IF NOT EXISTS `players` (
     INDEX idx_name (`name`)
 );
 
--- Table des sessions de jeu
 CREATE TABLE IF NOT EXISTS `game_sessions` (
     `id_session` INT NOT NULL AUTO_INCREMENT,
     `id_player` INT NOT NULL,
@@ -65,14 +60,13 @@ CREATE TABLE IF NOT EXISTS `game_sessions` (
     INDEX idx_status (`status`)
 );
 
--- Table des réponses (une ligne par question posée)
 CREATE TABLE IF NOT EXISTS `answers` (
     `id_answer` INT NOT NULL AUTO_INCREMENT,
     `id_session` INT NOT NULL,
     `id_city` INT NOT NULL,
-    `guessed_country` VARCHAR(100),  -- Réponse du joueur
+    `guessed_country` VARCHAR(100), 
     `is_correct` BOOLEAN NOT NULL,
-    `time_taken` INT,  -- Temps en secondes
+    `time_taken` INT,  
     `answered_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(`id_answer`),
     FOREIGN KEY(`id_session`) REFERENCES `game_sessions`(`id_session`) 
@@ -83,7 +77,6 @@ CREATE TABLE IF NOT EXISTS `answers` (
     INDEX idx_city (`id_city`)
 );
 
--- Table des scores finaux (pour le classement)
 CREATE TABLE IF NOT EXISTS `scores` (
     `id_score` INT NOT NULL AUTO_INCREMENT,
     `id_player` INT NOT NULL,

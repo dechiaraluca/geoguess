@@ -1,4 +1,3 @@
-// État du jeu
 let gameState = {
     sessionId: null,
     playerId: null,
@@ -8,21 +7,17 @@ let gameState = {
     lives: 5
 };
 
-// Éléments DOM
 const welcomeScreen = document.getElementById('welcome-screen');
 const gameScreen = document.getElementById('game-screen');
 const gameoverScreen = document.getElementById('gameover-screen');
 const loading = document.getElementById('loading');
 
-// Boutons
 const startBtn = document.getElementById('start-btn');
 const nextBtn = document.getElementById('next-btn');
 const replayBtn = document.getElementById('replay-btn');
 
-// Inputs
 const playerNameInput = document.getElementById('player-name');
 
-// Event listeners
 startBtn.addEventListener('click', startGame);
 nextBtn.addEventListener('click', loadNextQuestion);
 replayBtn.addEventListener('click', () => location.reload());
@@ -31,7 +26,6 @@ playerNameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') startGame();
 });
 
-// Démarrer le jeu
 async function startGame() {
     const playerName = playerNameInput.value.trim();
 
@@ -74,7 +68,6 @@ async function startGame() {
     }
 }
 
-// Charger la prochaine question
 async function loadNextQuestion() {
     showLoading();
     document.getElementById('feedback').classList.add('hidden');
@@ -104,9 +97,7 @@ async function loadNextQuestion() {
     }
 }
 
-// Afficher la question
 function displayQuestion(city, images, choices) {
-    // Afficher les images
     const imagesGrid = document.getElementById('images-grid');
     imagesGrid.innerHTML = '';
 
@@ -117,7 +108,6 @@ function displayQuestion(city, images, choices) {
         imagesGrid.appendChild(div);
     });
 
-    // Afficher les choix
     const choicesContainer = document.getElementById('choices-container');
     choicesContainer.innerHTML = '';
 
@@ -130,9 +120,7 @@ function displayQuestion(city, images, choices) {
     });
 }
 
-// Soumettre la réponse
 async function submitAnswer(answer) {
-    // Désactiver les boutons
     const buttons = document.querySelectorAll('.btn-choice');
     buttons.forEach(btn => btn.disabled = true);
 
@@ -173,7 +161,6 @@ async function submitAnswer(answer) {
     }
 }
 
-// Afficher le feedback
 function showFeedback(data) {
     const feedback = document.getElementById('feedback');
     const feedbackText = document.getElementById('feedback-text');
@@ -182,9 +169,8 @@ function showFeedback(data) {
 
     if (data.is_correct) {
         feedback.classList.add('correct');
-        feedbackText.textContent = `✓ Correct ! C'était bien ${data.correct_country}`;
+        feedbackText.textContent = ` Correct ! C'était bien ${data.correct_country}`;
 
-        // Marquer le bon choix en vert
         const buttons = document.querySelectorAll('.btn-choice');
         buttons.forEach(btn => {
             if (btn.textContent === data.correct_country) {
@@ -195,13 +181,11 @@ function showFeedback(data) {
         feedback.classList.add('incorrect');
         feedbackText.innerHTML = `✗ Incorrect ! C'était ${data.correct_country}<br><small>Ville: ${data.city_name}</small>`;
 
-        // Marquer les choix
         const buttons = document.querySelectorAll('.btn-choice');
         buttons.forEach(btn => {
             if (btn.textContent === data.correct_country) {
                 btn.classList.add('correct');
             } else if (btn.disabled) {
-                // Le bouton cliqué (incorrect)
                 const wasClicked = Array.from(buttons).some(b =>
                     b.textContent !== data.correct_country && !b.classList.contains('correct')
                 );
@@ -213,7 +197,6 @@ function showFeedback(data) {
     }
 }
 
-// Mettre à jour les stats
 function updateStats() {
     document.getElementById('score-display').textContent = gameState.score;
 
@@ -221,12 +204,10 @@ function updateStats() {
     document.getElementById('lives-display').textContent = hearts;
 }
 
-// Fin du jeu
 async function endGame() {
     showLoading();
 
     try {
-        // Sauvegarder le score
         const saveResponse = await fetch('api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -244,7 +225,6 @@ async function endGame() {
             document.getElementById('final-total').textContent = saveData.total_questions;
         }
 
-        // Récupérer le classement
         const leaderboardResponse = await fetch('api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -267,7 +247,6 @@ async function endGame() {
     }
 }
 
-// Afficher le classement
 function displayLeaderboard(leaderboard) {
     const table = document.getElementById('leaderboard-table');
 
@@ -302,7 +281,6 @@ function displayLeaderboard(leaderboard) {
     table.innerHTML = html;
 }
 
-// Utilitaires
 function switchScreen(screen) {
     welcomeScreen.classList.remove('active');
     gameScreen.classList.remove('active');
