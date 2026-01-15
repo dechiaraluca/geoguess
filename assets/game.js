@@ -102,11 +102,20 @@ function displayQuestion(city, images, choices) {
     imagesGrid.innerHTML = '';
 
     images.forEach(image => {
-        const div = document.createElement('div');
-        div.className = 'image-item';
-        div.innerHTML = `<img src="${image.url}" alt="${image.title}">`;
-        imagesGrid.appendChild(div);
-    });
+    const div = document.createElement('div');
+    div.className = 'image-item';
+    
+    const img = document.createElement('img');
+    img.src = image.url;
+    img.alt = image.title;
+    img.loading = "lazy"; // Active le lazy loading
+    
+    // Quand l'image a fini de charger, on ajoute la classe pour l'opacité
+    img.onload = () => img.classList.add('loaded');
+    
+    div.appendChild(img);
+    imagesGrid.appendChild(div);
+});
 
     const choicesContainer = document.getElementById('choices-container');
     choicesContainer.innerHTML = '';

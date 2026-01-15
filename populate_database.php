@@ -67,7 +67,6 @@ foreach ($countries as $countryName) {
         SELECT id_city, name
         FROM cities
         WHERE id_country = :id_country
-        LIMIT 10
     ");
     $stmt->execute(['id_country' => $country['id_country']]);
     $cities = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -86,12 +85,12 @@ foreach ($countries as $countryName) {
         $imagesResult = fetchAndSaveImages($city['id_city'], $pdo);
 
         if (!$imagesResult['success']) {
-            echo "        Aucune image trouvée\n";
+            echo "      Erreur: " . $imagesResult['error'] . "\n";
             $stats['errors'][] = "{$city['name']} (images): " . $imagesResult['error'];
             continue;
         }
 
-        echo "       {$imagesResult['saved']} images sauvegardées\n";
+        echo "      {$imagesResult['saved']} images sauvegardées\n";
         $stats['images'] += $imagesResult['saved'];
 
         sleep(1);
@@ -99,7 +98,7 @@ foreach ($countries as $countryName) {
 
     echo "\n";
 
-    echo "  Pause de 3 secondes...\n\n";
+    echo "  Pause de 3 secondes avant le prochain pays...\n\n";
     sleep(3);
 }
 

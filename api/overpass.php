@@ -7,9 +7,9 @@
  * @return array - Liste des villes ou erreur
  */
 function getCitiesFromOverpass($searchArea, $limit = 50) {
-    // Requête Overpass pour récupérer les villes et villages
-    // place=city pour les villes, place=town pour les petites villes, place=village pour les villages
-    $query = "[out:json][timeout:25];
+    // Requête Overpass pour récupérer les villes
+    // Timeout augmenté à 60 secondes pour les gros pays
+    $query = "[out:json][timeout:60];
     area({$searchArea})->.searchArea;
     (
         node[\"place\"=\"city\"](area.searchArea);
@@ -17,44 +17,60 @@ function getCitiesFromOverpass($searchArea, $limit = 50) {
     );
     out body {$limit};";
 
-    $url = "https://overpass-api.de/api/interpreter";
+    // Liste des serveurs Overpass (fallback si le principal timeout)
+    $servers = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter"
+    ];
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'GeoGuessrEducationalProject/1.0 (l.dechiara.dev@gmail.com)');
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    foreach ($servers as $serverIndex => $url) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'GeoGuessrEducationalProject/1.0 (l.dechiara.dev@gmail.com)');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 65);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-    // Rate limiting: attendre avant la requête
-    sleep(2);
+        // Rate limiting: attendre avant la requête
+        sleep(2);
 
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-    curl_close($ch);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
 
-    if ($response === false || $error) {
-        return ['error' => 'Erreur cURL : ' . $error];
+        // Si timeout ou erreur 504, essayer le serveur suivant
+        if ($httpCode === 504 || $httpCode === 429 || $response === false) {
+            if ($serverIndex < count($servers) - 1) {
+                sleep(3); // Pause avant d'essayer le serveur suivant
+                continue;
+            }
+        }
+
+        if ($response === false || $error) {
+            return ['error' => 'Erreur cURL : ' . $error];
+        }
+
+        if ($httpCode === 429) {
+            return ['error' => 'Rate limit dépassé. Attendez quelques secondes et réessayez.'];
+        }
+
+        if ($httpCode !== 200) {
+            return ['error' => 'Code HTTP : ' . $httpCode];
+        }
+
+        $data = json_decode($response, true);
+
+        if (!isset($data['elements']) || empty($data['elements'])) {
+            return ['error' => 'Aucune ville trouvée'];
+        }
+
+        return $data['elements'];
     }
 
-    if ($httpCode === 429) {
-        return ['error' => 'Rate limit dépassé. Attendez quelques secondes et réessayez.'];
-    }
-
-    if ($httpCode !== 200) {
-        return ['error' => 'Code HTTP : ' . $httpCode];
-    }
-
-    $data = json_decode($response, true);
-
-    if (!isset($data['elements']) || empty($data['elements'])) {
-        return ['error' => 'Aucune ville trouvée'];
-    }
-
-    return $data['elements'];
+    return ['error' => 'Tous les serveurs Overpass ont échoué'];
 }
 
 /**

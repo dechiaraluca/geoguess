@@ -7,12 +7,51 @@
  * @return array - Liste des URLs d'images ou erreur
  */
 function getImagesFromWikipedia($cityName, $countryName = '') {
+    // Correspondance des noms de pays vers l'anglais pour Wikipedia
+    $countryNameMapping = [
+        'España' => 'Spain',
+        'Italia' => 'Italy',
+        'Deutschland' => 'Germany',
+        '日本' => 'Japan',
+        'France' => 'France',
+        'United Kingdom' => 'United Kingdom',
+        'United States' => 'United States',
+        'Canada' => 'Canada',
+        'Brasil' => 'Brazil',
+        'Россия' => 'Russia',
+        '中国' => 'China',
+        'Österreich' => 'Austria',
+        'Schweiz' => 'Switzerland',
+        'Nederland' => 'Netherlands',
+        'België' => 'Belgium',
+        'Portugal' => 'Portugal',
+        'Polska' => 'Poland',
+        'México' => 'Mexico',
+        'Argentina' => 'Argentina'
+    ];
+
+    // Nettoyer le nom du pays (garder seulement la première partie avant la virgule)
+    if ($countryName) {
+        $countryName = explode(',', $countryName)[0];
+        $countryName = trim($countryName);
+        // Traduire en anglais si nécessaire
+        if (isset($countryNameMapping[$countryName])) {
+            $countryName = $countryNameMapping[$countryName];
+        }
+    }
+
+    // D'abord essayer avec "City, Country" (format Wikipedia standard)
     $searchTerm = $cityName;
     if ($countryName) {
-        $searchTerm .= ' ' . $countryName;
+        $searchTerm = $cityName . ', ' . $countryName;
     }
 
     $pageId = searchWikipediaPage($searchTerm);
+
+    // Si pas trouvé, essayer juste avec le nom de la ville
+    if (isset($pageId['error']) && $countryName) {
+        $pageId = searchWikipediaPage($cityName);
+    }
 
     if (isset($pageId['error'])) {
         return $pageId;
@@ -183,29 +222,45 @@ function getImageUrl($imageTitle) {
 }
 
 /**
- * Filtre les images pour exclure drapeaux, cartes, logos
+ * Filtre les images pour exclure drapeaux, cartes, logos et images non pertinentes
  * @param array $images - Liste des images
+ * @param string $cityName - Nom de la ville (optionnel, pour filtrage contextuel)
  * @return array - Images filtrées
  */
-function filterImages($images) {
-    $excludeKeywords = [
-        'flag', 'drapeau', 'coat_of_arms', 'blason',
-        'map', 'carte', 'logo', 'locator',
-        'seal', 'sceau', 'emblem', 'symbol',
-        'diagram', 'diagramme', '.svg'
+function filterImages($images, $cityName = '') {
+    // Mots-clés à exclure (patterns exacts pour éviter les faux positifs)
+    $excludePatterns = [
+        '/flag/i', '/drapeau/i', '/coat.?of.?arms/i', '/blason/i',
+        '/\bmap\b/i', '/\bcarte\b/i', '/\blogo\b/i', '/locator/i',
+        '/\bseal\b/i', '/sceau/i', '/emblem/i', '/symbol/i',
+        '/diagram/i', '/\.svg$/i', '/\.gif$/i',
+        '/\bicon\b/i', '/icône/i', '/button/i', '/arrow/i',
+        '/commons-logo/i', '/wikidata/i', '/red.?pencil/i',
+        '/increase/i', '/decrease/i', '/steady/i',
+        '/question.?mark/i', '/edit-clear/i',
+        '/disambig/i', '/folder/i', '/padlock/i',
+        '/location.?dot/i', '/marker/i',
+        '/percentage/i', '/population/i', '/graph/i', '/chart/i'
     ];
 
     $filtered = [];
 
     foreach ($images as $image) {
-        $title = strtolower($image['title']);
+        $title = $image['title'];
+        $url = $image['url'] ?? '';
         $isValid = true;
 
-        foreach ($excludeKeywords as $keyword) {
-            if (strpos($title, $keyword) !== false) {
+        // Vérifier les patterns d'exclusion
+        foreach ($excludePatterns as $pattern) {
+            if (preg_match($pattern, $title)) {
                 $isValid = false;
                 break;
             }
+        }
+
+        // Exclure les SVG et GIF (généralement des icônes/diagrammes/animations)
+        if ($isValid && preg_match('/\.(svg|gif)$/i', $url)) {
+            $isValid = false;
         }
 
         if ($isValid) {

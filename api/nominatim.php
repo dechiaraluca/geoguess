@@ -33,12 +33,13 @@ function searchCountry($countryName) {
     }
     
     $data = json_decode($response, true);
-    
+
     if (empty($data)) {
         return ['error' => 'Pays non trouvé'];
     }
-    
-    return $data;
+
+    // Nominatim retourne un tableau, on prend le premier résultat
+    return $data[0];
 }
 
 function calculateSearchArea($osmId, $osmType) {
