@@ -7,63 +7,80 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: black;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     color: #333;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 15px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .screen {
     display: none;
-    min-height: 100vh;
+    height: 100vh;
+    width: 100%;
 }
 
 .screen.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#welcome-screen.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#welcome-screen .container {
+    height: auto;
 }
 
 #welcome-screen h1 {
-    font-size: 4rem;
+    font-size: 3rem;
     text-align: center;
     color: white;
-    margin-top: 80px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .subtitle {
     text-align: center;
     color: rgba(255, 255, 255, 0.9);
-    font-size: 1.2rem;
-    margin-bottom: 50px;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
 }
 
 .welcome-box {
     background: white;
-    border-radius: 20px;
-    padding: 40px;
-    max-width: 600px;
+    border-radius: 15px;
+    padding: 25px 30px;
+    max-width: 500px;
     margin: 0 auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-box h2 {
     color: black;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
 }
 
 .welcome-box ul {
     list-style: none;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .welcome-box li {
-    padding: 12px 0;
-    font-size: 1.1rem;
+    padding: 8px 0;
+    font-size: 1rem;
     border-bottom: 1px solid #eee;
 }
 
@@ -172,16 +189,19 @@ body {
 .images-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 30px;
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+    
+    flex: 1;         
+    min-height: 0;    
 }
 
 .image-item {
-    aspect-ratio: 4/3;
+    height: 100%;     
+    width: 100%;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    background-color: #f0f0f0; 
 }
 
 .image-item img {
@@ -198,6 +218,21 @@ body {
 
 .image-item:hover img.loaded {
     transform: scale(1.05);
+}
+
+.game-header {
+    padding: 10px 20px; /* Moins de padding vertical */
+    margin-bottom: 15px;
+}
+
+.question-box {
+    padding: 15px 20px; /* Plus compact */
+    margin-top: auto;   /* Se colle en bas si besoin */
+}
+
+.question-box h2 {
+    margin-bottom: 10px;
+    font-size: 1.2rem; /* Légèrement plus petit */
 }
 
 .question-box {
