@@ -53,12 +53,13 @@ function startGameSession($playerName, $pdo) {
 function getRandomCityWithImages($pdo) {
     try {
         $stmt = $pdo->query("
-            SELECT DISTINCT c.id_city, c.name as city_name,
+            SELECT c.id_city, c.name as city_name,
                    co.id_country, co.name as country_name, co.code as country_code
             FROM cities c
             JOIN countries co ON c.id_country = co.id_country
-            JOIN images i ON c.id_city = i.id_city
-            WHERE i.is_valid = 1
+            JOIN images i ON c.id_city = i.id_city AND i.is_valid = 1
+            GROUP BY c.id_city
+            HAVING COUNT(i.id_image) >= 3
             ORDER BY RAND()
             LIMIT 1
         ");

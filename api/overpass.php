@@ -17,7 +17,6 @@ function getCitiesFromOverpass($searchArea, $limit = 50) {
     );
     out body {$limit};";
 
-    // Liste des serveurs Overpass (fallback si le principal timeout)
     $servers = [
         "https://overpass-api.de/api/interpreter",
         "https://overpass.kumi.systems/api/interpreter"
@@ -33,7 +32,6 @@ function getCitiesFromOverpass($searchArea, $limit = 50) {
         curl_setopt($ch, CURLOPT_TIMEOUT, 65);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-        // Rate limiting: attendre avant la requête
         sleep(2);
 
         $response = curl_exec($ch);
@@ -41,10 +39,9 @@ function getCitiesFromOverpass($searchArea, $limit = 50) {
         $error = curl_error($ch);
         curl_close($ch);
 
-        // Si timeout ou erreur 504, essayer le serveur suivant
         if ($httpCode === 504 || $httpCode === 429 || $response === false) {
             if ($serverIndex < count($servers) - 1) {
-                sleep(3); // Pause avant d'essayer le serveur suivant
+                sleep(3);
                 continue;
             }
         }

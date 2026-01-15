@@ -7,7 +7,6 @@
  * @return array - Liste des URLs d'images ou erreur
  */
 function getImagesFromWikipedia($cityName, $countryName = '') {
-    // Correspondance des noms de pays vers l'anglais pour Wikipedia
     $countryNameMapping = [
         'España' => 'Spain',
         'Italia' => 'Italy',
@@ -30,31 +29,35 @@ function getImagesFromWikipedia($cityName, $countryName = '') {
         'Argentina' => 'Argentina'
     ];
 
-    // Nettoyer le nom du pays (garder seulement la première partie avant la virgule)
     if ($countryName) {
         $countryName = explode(',', $countryName)[0];
         $countryName = trim($countryName);
-        // Traduire en anglais si nécessaire
         if (isset($countryNameMapping[$countryName])) {
             $countryName = $countryNameMapping[$countryName];
         }
     }
 
-    // D'abord essayer avec "City, Country" (format Wikipedia standard)
-    $searchTerm = $cityName;
+    $searchStrategies = [];
+
     if ($countryName) {
-        $searchTerm = $cityName . ', ' . $countryName;
+        $searchStrategies[] = $cityName . ', ' . $countryName;
+        $searchStrategies[] = $cityName . ' city ' . $countryName;
+    }
+    $searchStrategies[] = $cityName;
+
+    $pageId = null;
+    foreach ($searchStrategies as $searchTerm) {
+        $result = searchWikipediaPage($searchTerm);
+        if (!isset($result['error'])) {
+            if (isValidCityPage($result)) {
+                $pageId = $result;
+                break;
+            }
+        }
     }
 
-    $pageId = searchWikipediaPage($searchTerm);
-
-    // Si pas trouvé, essayer juste avec le nom de la ville
-    if (isset($pageId['error']) && $countryName) {
-        $pageId = searchWikipediaPage($cityName);
-    }
-
-    if (isset($pageId['error'])) {
-        return $pageId;
+    if ($pageId === null) {
+        return ['error' => 'Page Wikipedia de ville non trouvée'];
     }
 
     $images = fetchPageImages($pageId);
@@ -70,6 +73,75 @@ function getImagesFromWikipedia($cityName, $countryName = '') {
     }
 
     return $filteredImages;
+}
+
+/**
+ * Vérifie si une page Wikipedia est bien une page de ville/lieu géographique
+ * @param int $pageId - ID de la page
+ * @return bool - True si c'est une page de ville valide
+ */
+function isValidCityPage($pageId) {
+    $url = "https://en.wikipedia.org/w/api.php?" . http_build_query([
+        'action' => 'query',
+        'format' => 'json',
+        'pageids' => $pageId,
+        'prop' => 'categories|extracts',
+        'cllimit' => 20,
+        'exintro' => true,
+        'explaintext' => true,
+        'exsentences' => 3
+    ]);
+
+    $response = makeWikipediaRequest($url);
+
+    if (isset($response['error']) || !isset($response['query']['pages'][$pageId])) {
+        return false;
+    }
+
+    $page = $response['query']['pages'][$pageId];
+
+    $extract = strtolower($page['extract'] ?? '');
+    $locationKeywords = [
+        'city', 'town', 'village', 'municipality', 'capital',
+        'located', 'population', 'region', 'province', 'county',
+        'district', 'commune', 'borough', 'metropolitan'
+    ];
+
+    foreach ($locationKeywords as $keyword) {
+        if (strpos($extract, $keyword) !== false) {
+            return true;
+        }
+    }
+
+    $categories = $page['categories'] ?? [];
+    $validCategoryKeywords = [
+        'cities', 'towns', 'villages', 'municipalities',
+        'populated places', 'capitals', 'communes'
+    ];
+
+    foreach ($categories as $cat) {
+        $catTitle = strtolower($cat['title'] ?? '');
+        foreach ($validCategoryKeywords as $keyword) {
+            if (strpos($catTitle, $keyword) !== false) {
+                return true;
+            }
+        }
+    }
+
+    $invalidKeywords = [
+        'genus', 'species', 'animal', 'plant', 'fossil',
+        'extinct', 'family', 'mammal', 'bird', 'fish',
+        'person', 'born', 'died', 'politician', 'actor',
+        'singer', 'album', 'song', 'film', 'movie'
+    ];
+
+    foreach ($invalidKeywords as $keyword) {
+        if (strpos($extract, $keyword) !== false) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -138,13 +210,11 @@ function fetchMainImage($pageId) {
 function fetchPageImages($pageId) {
     $images = [];
 
-    // D'abord, essayer de récupérer l'image principale
     $mainImage = fetchMainImage($pageId);
     if ($mainImage) {
         $images[] = $mainImage;
     }
 
-    // Ensuite, récupérer les autres images de la page
     $url = "https://en.wikipedia.org/w/api.php?" . http_build_query([
         'action' => 'query',
         'format' => 'json',
@@ -228,7 +298,6 @@ function getImageUrl($imageTitle) {
  * @return array - Images filtrées
  */
 function filterImages($images, $cityName = '') {
-    // Mots-clés à exclure (patterns exacts pour éviter les faux positifs)
     $excludePatterns = [
         '/flag/i', '/drapeau/i', '/coat.?of.?arms/i', '/blason/i',
         '/\bmap\b/i', '/\bcarte\b/i', '/\blogo\b/i', '/locator/i',
@@ -240,7 +309,15 @@ function filterImages($images, $cityName = '') {
         '/question.?mark/i', '/edit-clear/i',
         '/disambig/i', '/folder/i', '/padlock/i',
         '/location.?dot/i', '/marker/i',
-        '/percentage/i', '/population/i', '/graph/i', '/chart/i'
+        '/percentage/i', '/population/i', '/graph/i', '/chart/i',
+        '/portrait/i', '/signature/i', '/autograph/i',
+        '/\bwar\b/i', '/battle/i', '/soldier/i', '/military/i',
+        '/troop/i', '/army/i', '/regiment/i',
+        '/fossil/i', '/skeleton/i', '/skull/i',
+        '/specimen/i', '/taxon/i', '/genus/i', '/species/i',
+        '/painting/i', '/artwork/i',
+        '/screenshot/i', '/album.?cover/i',
+        '/\bhead\b/i', '/mugshot/i'
     ];
 
     $filtered = [];
@@ -250,7 +327,6 @@ function filterImages($images, $cityName = '') {
         $url = $image['url'] ?? '';
         $isValid = true;
 
-        // Vérifier les patterns d'exclusion
         foreach ($excludePatterns as $pattern) {
             if (preg_match($pattern, $title)) {
                 $isValid = false;
@@ -258,7 +334,6 @@ function filterImages($images, $cityName = '') {
             }
         }
 
-        // Exclure les SVG et GIF (généralement des icônes/diagrammes/animations)
         if ($isValid && preg_match('/\.(svg|gif)$/i', $url)) {
             $isValid = false;
         }
