@@ -196,7 +196,7 @@ function showFeedback(data) {
         });
     } else {
         feedback.classList.add('incorrect');
-        feedbackText.innerHTML = `✗ Incorrect ! C'était ${data.correct_country}<br><small>Ville: ${data.city_name}</small>`;
+        feedbackText.innerHTML = ` Incorrect ! C'était ${data.correct_country}<br><small>Ville: ${data.city_name}</small>`;
 
         const buttons = document.querySelectorAll('.btn-choice');
         buttons.forEach(btn => {

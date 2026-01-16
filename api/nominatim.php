@@ -38,7 +38,6 @@ function searchCountry($countryName) {
         return ['error' => 'Pays non trouvé'];
     }
 
-    // Nominatim retourne un tableau, on prend le premier résultat
     return $data[0];
 }
 
