@@ -70,7 +70,7 @@ async function startGame() {
 
 async function loadNextQuestion() {
     showLoading();
-    document.getElementById('feedback').classList.add('hidden');
+    document.getElementById('feedback-overlay').classList.add('hidden');
 
     try {
         const response = await fetch('api.php', {
@@ -171,10 +171,12 @@ async function submitAnswer(answer) {
 }
 
 function showFeedback(data) {
+    const feedbackOverlay = document.getElementById('feedback-overlay');
     const feedback = document.getElementById('feedback');
     const feedbackText = document.getElementById('feedback-text');
 
-    feedback.classList.remove('hidden', 'correct', 'incorrect');
+    feedbackOverlay.classList.remove('hidden');
+    feedback.classList.remove('correct', 'incorrect');
 
     if (data.is_correct) {
         feedback.classList.add('correct');

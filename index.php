@@ -56,9 +56,11 @@
                 </div>
             </div>
 
-            <div id="feedback" class="feedback hidden">
-                <p id="feedback-text"></p>
-                <button id="next-btn" class="btn btn-primary">Question suivante</button>
+            <div id="feedback-overlay" class="feedback-overlay hidden">
+                <div id="feedback" class="feedback">
+                    <p id="feedback-text"></p>
+                    <button id="next-btn" class="btn btn-primary">Question suivante</button>
+                </div>
             </div>
         </div>
     </div>

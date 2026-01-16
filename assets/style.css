@@ -130,10 +130,10 @@ body {
 
 .btn-choice {
     width: 100%;
-    padding: 20px;
+    padding: 12px 15px;
     background: white;
-    border: 3px solid #ddd;
-    font-size: 1.1rem;
+    border: 2px solid #ddd;
+    font-size: 1rem;
 }
 
 .btn-choice:hover:not(:disabled) {
@@ -160,11 +160,11 @@ body {
 
 .game-header {
     background: white;
-    border-radius: 15px;
-    padding: 20px;
+    border-radius: 10px;
+    padding: 10px 20px;
     display: flex;
     justify-content: space-around;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -181,7 +181,7 @@ body {
 
 .stat .value {
     display: block;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: #333;
 }
@@ -221,51 +221,77 @@ body {
 }
 
 .game-header {
-    padding: 10px 20px; /* Moins de padding vertical */
+    padding: 10px 20px; 
     margin-bottom: 15px;
 }
 
 .question-box {
-    padding: 15px 20px; /* Plus compact */
-    margin-top: auto;   /* Se colle en bas si besoin */
+    padding: 15px 20px; 
+    margin-top: auto; 
 }
 
 .question-box h2 {
     margin-bottom: 10px;
-    font-size: 1.2rem; /* Légèrement plus petit */
+    font-size: 1.2rem;
 }
 
 .question-box {
     background: white;
-    border-radius: 15px;
-    padding: 30px;
+    border-radius: 10px;
+    padding: 15px 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .question-box h2 {
     text-align: center;
     color: black;
-    margin-bottom: 25px;
-    font-size: 1.8rem;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
 }
 
 .choices {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 10px;
+}
+
+/* Modal Feedback */
+.feedback-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.feedback-overlay.hidden {
+    display: none;
 }
 
 .feedback {
     background: white;
     border-radius: 15px;
-    padding: 30px;
+    padding: 30px 40px;
     text-align: center;
-    margin-top: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    animation: popIn 0.3s ease-out;
 }
 
-.feedback.hidden {
-    display: none;
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .feedback p {
@@ -274,8 +300,16 @@ body {
     font-weight: 600;
 }
 
+.feedback.correct {
+    border-top: 5px solid #10b981;
+}
+
 .feedback.correct p {
     color: #10b981;
+}
+
+.feedback.incorrect {
+    border-top: 5px solid #ef4444;
 }
 
 .feedback.incorrect p {
