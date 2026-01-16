@@ -427,7 +427,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Responsive */
+/* Responsive Tablet */
 @media (max-width: 768px) {
     #welcome-screen h1 {
         font-size: 2.5rem;
@@ -443,10 +443,161 @@ body {
 
     .game-header {
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
     }
 
     .final-stats {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Responsive Mobile */
+@media (max-width: 480px) {
+    body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .container {
+        padding: 8px;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    #welcome-screen h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+
+    .welcome-box {
+        padding: 20px;
+    }
+
+    .welcome-box h2 {
+        font-size: 1.2rem;
+    }
+
+    .welcome-box li {
+        font-size: 0.9rem;
+        padding: 6px 0;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group input {
+        padding: 12px 15px;
+    }
+
+    .btn {
+        padding: 12px 20px;
+        width: 100%;
+    }
+
+    .game-header {
+        flex-direction: row;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+    }
+
+    .stat .label {
+        font-size: 0.7rem;
+    }
+
+    .stat .value {
+        font-size: 0.95rem;
+    }
+
+    /* Grille 2x3 sur mobile pour des images plus grandes */
+    .images-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 10px;
+        flex: none;
+        height: 45vh;
+    }
+
+    .image-item {
+        border-radius: 8px;
+    }
+
+    .question-box {
+        padding: 10px 12px;
+        border-radius: 8px;
+    }
+
+    .question-box h2 {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .choices {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+
+    .btn-choice {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    .feedback {
+        padding: 20px 25px;
+        margin: 15px;
+        max-width: calc(100% - 30px);
+    }
+
+    .feedback p {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+
+    .gameover-box {
+        padding: 25px 20px;
+        margin: 20px auto;
+        border-radius: 15px;
+    }
+
+    .gameover-box h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+    }
+
+    .leaderboard h2 {
+        font-size: 1.3rem;
+    }
+
+    .leaderboard th,
+    .leaderboard td {
+        padding: 8px 5px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Très petits écrans (iPhone SE, etc.) */
+@media (max-width: 380px) {
+    .images-grid {
+        height: 40vh;
+    }
+
+    .btn-choice {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+    }
+
+    .question-box h2 {
+        font-size: 0.85rem;
     }
 }
