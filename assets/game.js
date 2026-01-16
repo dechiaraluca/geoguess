@@ -102,20 +102,26 @@ function displayQuestion(city, images, choices) {
     imagesGrid.innerHTML = '';
 
     images.forEach(image => {
-    const div = document.createElement('div');
-    div.className = 'image-item';
-    
-    const img = document.createElement('img');
-    img.src = image.url;
-    img.alt = image.title;
-    img.loading = "lazy"; // Active le lazy loading
-    
-    // Quand l'image a fini de charger, on ajoute la classe pour l'opacité
-    img.onload = () => img.classList.add('loaded');
-    
-    div.appendChild(img);
-    imagesGrid.appendChild(div);
-});
+        const div = document.createElement('div');
+        div.className = 'image-item';
+
+        const img = document.createElement('img');
+        img.src = image.url;
+        img.alt = image.title;
+        img.loading = "lazy";
+
+        img.onload = () => img.classList.add('loaded');
+
+        const zoomIcon = document.createElement('div');
+        zoomIcon.className = 'zoom-icon';
+        zoomIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/></svg>';
+
+        div.onclick = () => openLightbox(image.url);
+
+        div.appendChild(img);
+        div.appendChild(zoomIcon);
+        imagesGrid.appendChild(div);
+    });
 
     const choicesContainer = document.getElementById('choices-container');
     choicesContainer.innerHTML = '';
@@ -309,3 +315,25 @@ function showLoading() {
 function hideLoading() {
     loading.classList.add('hidden');
 }
+
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxClose = document.querySelector('.lightbox-close');
+
+function openLightbox(src) {
+    lightboxImg.src = src;
+    lightbox.classList.remove('hidden');
+}
+
+function closeLightbox() {
+    lightbox.classList.add('hidden');
+    lightboxImg.src = '';
+}
+
+lightboxClose.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+});

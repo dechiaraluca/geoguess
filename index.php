@@ -100,7 +100,12 @@
         <div class="spinner"></div>
         <p>Chargement...</p>
     </div>
-    
+
+    <div id="lightbox" class="lightbox hidden">
+        <button class="lightbox-close">&times;</button>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
     <script src="assets/game.js"></script>
 
 </body>

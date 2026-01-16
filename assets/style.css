@@ -164,12 +164,14 @@ body {
     padding: 10px 20px;
     display: flex;
     justify-content: space-around;
+    align-items: center;
     margin-bottom: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .stat {
     text-align: center;
+    flex: 1;
 }
 
 .stat .label {
@@ -198,10 +200,12 @@ body {
 }
 
 .image-item {
-    height: 100%;     
+    height: 100%;
     width: 100%;
     border-radius: 15px;
     overflow: hidden;
+    position: relative;
+    cursor: pointer;
 }
 
 .image-item img {
@@ -218,6 +222,73 @@ body {
 
 .image-item:hover img.loaded {
     transform: scale(1.05);
+}
+
+.zoom-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.zoom-icon svg {
+    width: 22px;
+    height: 22px;
+    color: white;
+}
+
+.image-item:hover .zoom-icon {
+    opacity: 1;
+}
+
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.lightbox.hidden {
+    display: none;
+}
+
+.lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 40px;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.lightbox-close:hover {
+    transform: scale(1.2);
 }
 
 .game-header {
@@ -255,7 +326,6 @@ body {
     gap: 10px;
 }
 
-/* Modal Feedback */
 .feedback-overlay {
     position: fixed;
     top: 0;
@@ -514,7 +584,6 @@ body {
         font-size: 0.95rem;
     }
 
-    /* Grille 2x3 sur mobile pour des images plus grandes */
     .images-grid {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(3, 1fr);
@@ -586,7 +655,6 @@ body {
     }
 }
 
-/* Très petits écrans (iPhone SE, etc.) */
 @media (max-width: 380px) {
     .images-grid {
         height: 40vh;
