@@ -7,8 +7,6 @@
  * @return array - Liste des villes ou erreur
  */
 function getCitiesFromOverpass($searchArea, $limit = 50) {
-    // Requête Overpass pour récupérer les villes
-    // Timeout augmenté à 60 secondes pour les gros pays
     $query = "[out:json][timeout:60];
     area({$searchArea})->.searchArea;
     (
@@ -133,7 +131,6 @@ function saveCitiesToDatabase($cities, $idCountry, $pdo) {
  * @return array - Résultat de l'opération
  */
 function fetchAndSaveCities($idCountry, $pdo, $limit = 50) {
-    // Récupérer les infos du pays
     $stmt = $pdo->prepare("SELECT * FROM countries WHERE id_country = :id");
     $stmt->execute(['id' => $idCountry]);
     $country = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -145,7 +142,6 @@ function fetchAndSaveCities($idCountry, $pdo, $limit = 50) {
         ];
     }
 
-    // Récupérer les villes via Overpass
     $cities = getCitiesFromOverpass($country['search_area'], $limit);
 
     if (isset($cities['error'])) {
@@ -155,7 +151,6 @@ function fetchAndSaveCities($idCountry, $pdo, $limit = 50) {
         ];
     }
 
-    // Sauvegarder en base de données
     $result = saveCitiesToDatabase($cities, $idCountry, $pdo);
 
     return array_merge($result, [

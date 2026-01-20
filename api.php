@@ -1,7 +1,4 @@
 <?php
-/**
- * API Endpoint pour le jeu GeoGuess
- */
 
 header('Content-Type: application/json');
 
@@ -9,7 +6,6 @@ require_once 'config/database.php';
 require_once 'game/game.php';
 require_once 'game/score.php';
 
-// Connexion à la base de données
 $database = new Database();
 $pdo = $database->getConnection();
 
@@ -18,11 +14,9 @@ if (!$pdo) {
     exit;
 }
 
-// Récupérer les données POST
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? '';
 
-// Router les actions
 switch ($action) {
     case 'start_session':
         handleStartSession($input, $pdo);
