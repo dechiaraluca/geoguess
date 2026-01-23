@@ -61,11 +61,11 @@ body {
 
 .welcome-box {
     background: white;
-    border-radius: 15px;
+    border-radius: 8px;
     padding: 25px 30px;
     max-width: 500px;
     margin: 0 auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 .welcome-box h2 {
@@ -121,8 +121,8 @@ body {
 .diff-btn {
     flex: 1;
     padding: 10px 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     background: white;
     cursor: pointer;
     font-size: 0.9rem;
@@ -131,13 +131,13 @@ body {
 }
 
 .diff-btn:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: #333;
+    background: #fafafa;
 }
 
 .diff-btn.active {
-    border-color: #667eea;
-    background: #667eea;
+    border-color: #333;
+    background: #333;
     color: white;
 }
 
@@ -157,10 +157,10 @@ body {
     display: flex;
     align-items: center;
     padding: 8px 16px;
-    background: #e5e7eb;
-    border-radius: 20px;
+    background: #eee;
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
     font-size: 0.9rem;
 }
 
@@ -169,7 +169,7 @@ body {
 }
 
 .toggle-input:checked + .toggle-label {
-    background: #667eea;
+    background: #333;
     color: white;
 }
 
@@ -189,49 +189,48 @@ body {
 .input-group input {
     flex: 1;
     padding: 15px 20px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     font-size: 1rem;
     outline: none;
-    transition: border 0.3s;
+    transition: border 0.2s;
 }
 
 .input-group input:focus {
-    border-color: #667eea;
+    border-color: #333;
 }
 
 .btn {
     padding: 15px 30px;
     border: none;
-    border-radius: 10px;
+    border-radius: 6px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.2s;
 }
 
 .btn-primary {
-    background: #667eea;
+    background: #333;
     color: white;
 }
 
 .btn-primary:hover {
-    background: #5568d3;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    background: #222;
 }
 
 .btn-choice {
     width: 100%;
     padding: 12px 15px;
     background: white;
-    border: 2px solid #ddd;
+    border: 1px solid #ddd;
     font-size: 1rem;
+    border-radius: 6px;
 }
 
 .btn-choice:hover:not(:disabled) {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: #333;
+    background: #fafafa;
 }
 
 .btn-choice:disabled {
@@ -240,20 +239,20 @@ body {
 }
 
 .btn-choice.correct {
-    background: #10b981;
+    background: #333;
     color: white;
-    border-color: #10b981;
+    border-color: #333;
 }
 
 .btn-choice.incorrect {
-    background: #ef4444;
+    background: #999;
     color: white;
-    border-color: #ef4444;
+    border-color: #999;
 }
 
 .game-header {
     background: white;
-    border-radius: 10px;
+    border-radius: 6px;
     padding: 10px 20px;
     display: flex;
     justify-content: space-around;
@@ -282,20 +281,39 @@ body {
 }
 
 .stat .value.streak-active {
-    color: #f59e0b;
-    animation: pulse 0.5s ease-in-out;
+    color: #333;
+    font-weight: 800;
 }
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+.stat .value.lives-container {
+    display: flex !important;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+.life {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.life-full {
+    background: #333;
+}
+
+.life-empty {
+    background: transparent;
+    border: 2px solid #ccc;
 }
 
 .timer-bar-container {
-    background: #e5e7eb;
-    border-radius: 10px;
-    height: 30px;
-    margin-bottom: 10px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    height: 8px;
+    margin-bottom: 15px;
     position: relative;
     overflow: hidden;
 }
@@ -306,33 +324,26 @@ body {
 
 .timer-bar {
     height: 100%;
-    background: linear-gradient(90deg, #10b981, #34d399);
-    border-radius: 10px;
+    background: #333;
+    border-radius: 4px;
     transition: width 1s linear;
 }
 
 .timer-bar.timer-warning {
-    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    background: #666;
 }
 
 .timer-bar.timer-danger {
-    background: linear-gradient(90deg, #ef4444, #f87171);
-    animation: pulse-danger 0.5s ease-in-out infinite;
-}
-
-@keyframes pulse-danger {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+    background: #999;
 }
 
 .timer-text {
     position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: 700;
-    color: #333;
-    font-size: 0.9rem;
+    right: 0;
+    top: 12px;
+    font-weight: 600;
+    color: #666;
+    font-size: 0.8rem;
 }
 
 .images-grid {
@@ -349,7 +360,7 @@ body {
 .image-item {
     height: 100%;
     width: 100%;
-    border-radius: 15px;
+    border-radius: 6px;
     overflow: hidden;
     position: relative;
     cursor: pointer;
@@ -376,15 +387,15 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.2s;
     pointer-events: none;
 }
 
@@ -419,7 +430,7 @@ body {
     max-width: 90%;
     max-height: 90%;
     object-fit: contain;
-    border-radius: 10px;
+    border-radius: 4px;
 }
 
 .lightbox-close {
@@ -455,9 +466,9 @@ body {
 
 .question-box {
     background: white;
-    border-radius: 10px;
+    border-radius: 6px;
     padding: 15px 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .question-header {
@@ -476,39 +487,39 @@ body {
 }
 
 .btn-hint {
-    padding: 8px 12px;
-    background: #fef3c7;
-    border: 2px solid #f59e0b;
-    color: #92400e;
+    padding: 8px 14px;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    color: #555;
     font-size: 0.85rem;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
 }
 
 .btn-hint:hover:not(:disabled) {
-    background: #fde68a;
-    transform: translateY(-1px);
+    background: #eee;
+    border-color: #999;
 }
 
 .btn-hint:disabled,
 .btn-hint.used {
-    background: #e5e7eb;
-    border-color: #9ca3af;
-    color: #6b7280;
+    background: #f0f0f0;
+    border-color: #ddd;
+    color: #aaa;
     cursor: not-allowed;
 }
 
 .hint-display {
-    background: linear-gradient(135deg, #fef3c7, #fde68a);
-    border: 2px solid #f59e0b;
-    border-radius: 8px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     padding: 10px 15px;
     margin-bottom: 12px;
     text-align: center;
     font-size: 0.95rem;
-    color: #92400e;
+    color: #555;
 }
 
 .hint-display.hidden {
@@ -555,23 +566,11 @@ body {
 
 .feedback {
     background: white;
-    border-radius: 15px;
+    border-radius: 8px;
     padding: 30px 40px;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     max-width: 400px;
-    animation: popIn 0.3s ease-out;
-}
-
-@keyframes popIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
 }
 
 .feedback p {
@@ -581,26 +580,27 @@ body {
 }
 
 .feedback.correct {
-    border-top: 5px solid #10b981;
+    border-top: 4px solid #333;
 }
 
 .feedback.correct p {
-    color: #10b981;
+    color: #333;
 }
 
 .feedback.incorrect {
-    border-top: 5px solid #ef4444;
+    border-top: 4px solid #999;
 }
 
 .feedback.incorrect p {
-    color: #ef4444;
+    color: #666;
 }
 
 .points-earned {
     display: block;
-    font-size: 1.5rem;
-    color: #10b981;
+    font-size: 1.4rem;
+    color: #333;
     margin-top: 5px;
+    font-weight: 700;
 }
 
 .bonus-detail {
@@ -612,39 +612,35 @@ body {
 
 .streak-message {
     display: inline-block;
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    background: #333;
     color: white;
     padding: 5px 15px;
-    border-radius: 20px;
+    border-radius: 4px;
     margin-top: 10px;
-    font-size: 1rem;
-    animation: bounce 0.5s ease;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .current-player {
-    background: #dbeafe !important;
+    background: #f0f0f0 !important;
     font-weight: 600;
 }
 
 .gameover-box {
     background: white;
-    border-radius: 20px;
+    border-radius: 12px;
     padding: 50px;
     max-width: 800px;
     margin: 50px auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     text-align: center;
 }
 
 .gameover-box h1 {
-    color: #667eea;
+    color: #333;
     margin-bottom: 30px;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+    font-weight: 700;
 }
 
 .final-stats {
@@ -656,22 +652,36 @@ body {
 
 .stat-item {
     padding: 20px;
-    background: #f8f9ff;
-    border-radius: 10px;
+    background: #f8f8f8;
+    border-radius: 8px;
 }
 
 .stat-label {
     display: block;
-    color: #666;
-    font-size: 0.9rem;
+    color: #888;
+    font-size: 0.85rem;
     margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .stat-value {
     display: block;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 700;
-    color: #667eea;
+    color: #333;
+}
+
+.rank-1 {
+    font-weight: 700;
+}
+
+.rank-2 {
+    font-weight: 600;
+}
+
+.rank-3 {
+    font-weight: 600;
 }
 
 .leaderboard {
@@ -679,9 +689,10 @@ body {
 }
 
 .leaderboard h2 {
-    color: #667eea;
+    color: #333;
     margin-bottom: 20px;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 .leaderboard table {
@@ -690,10 +701,11 @@ body {
 }
 
 .leaderboard th {
-    background: #667eea;
+    background: #333;
     color: white;
     padding: 12px;
     text-align: left;
+    font-weight: 500;
 }
 
 .leaderboard td {
@@ -702,7 +714,7 @@ body {
 }
 
 .leaderboard tr:nth-child(even) {
-    background: #f8f9ff;
+    background: #fafafa;
 }
 
 .loading {

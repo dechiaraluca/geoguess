@@ -56,20 +56,20 @@
         <div class="container">
             <div class="game-header">
                 <div class="stat">
-                    <span class="label">Joueur:</span>
+                    <span class="label">Joueur</span>
                     <span id="player-display" class="value">-</span>
                 </div>
                 <div class="stat">
-                    <span class="label">Score:</span>
+                    <span class="label">Score</span>
                     <span id="score-display" class="value">0</span>
                 </div>
                 <div class="stat">
-                    <span class="label">Série:</span>
-                    <span id="streak-display" class="value">0 🔥</span>
+                    <span class="label">Série</span>
+                    <span id="streak-display" class="value">0</span>
                 </div>
                 <div class="stat">
-                    <span class="label">Vies:</span>
-                    <span id="lives-display" class="value">❤️❤️❤️❤️❤️</span>
+                    <span class="label">Vies</span>
+                    <span id="lives-display" class="value lives-container"></span>
                 </div>
             </div>
 
@@ -85,7 +85,7 @@
                 <div class="question-header">
                     <h2>De quel pays viennent ces images ?</h2>
                     <button id="hint-btn" class="btn btn-hint" title="Utiliser un indice (-2 pts)">
-                        💡 Indice
+                        Indice
                     </button>
                 </div>
 
@@ -124,7 +124,7 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Meilleure série</span>
-                        <span class="stat-value" id="final-streak">0 🔥</span>
+                        <span class="stat-value" id="final-streak">0</span>
                     </div>
                 </div>
 

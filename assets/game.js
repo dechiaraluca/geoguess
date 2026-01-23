@@ -271,11 +271,11 @@ function useHint() {
 
     let hintText = '';
     if (hints.continent) {
-        hintText = `🌍 Continent : <strong>${hints.continent}</strong>`;
+        hintText = `Continent : <strong>${hints.continent}</strong>`;
     } else if (hints.region) {
-        hintText = `📍 Région : <strong>${hints.region}</strong>`;
+        hintText = `Région : <strong>${hints.region}</strong>`;
     } else {
-        hintText = `🏙️ Cette ville commence par la lettre <strong>${gameState.currentCity.name.charAt(0)}</strong>`;
+        hintText = `Cette ville commence par la lettre <strong>${gameState.currentCity.name.charAt(0)}</strong>`;
     }
 
     hintDisplay.innerHTML = hintText;
@@ -362,7 +362,7 @@ function showFeedback(data) {
 
     if (data.is_correct) {
         feedback.classList.add('correct');
-        let text = `✓ Correct ! C'était bien ${data.correct_country}`;
+        let text = `Correct ! C'était bien ${data.correct_country}`;
 
         if (data.points_earned) {
             text += `<br><span class="points-earned">+${data.points_earned} pts</span>`;
@@ -376,7 +376,7 @@ function showFeedback(data) {
         }
 
         if (gameState.streak >= 3) {
-            text += `<br><span class="streak-message">🔥 Série de ${gameState.streak} !</span>`;
+            text += `<br><span class="streak-message">Série de ${gameState.streak}</span>`;
         }
 
         feedbackText.innerHTML = text;
@@ -392,9 +392,9 @@ function showFeedback(data) {
         let text = '';
 
         if (data.timeout) {
-            text = `⏱️ Temps écoulé ! C'était ${data.correct_country}`;
+            text = `Temps écoulé ! C'était ${data.correct_country}`;
         } else {
-            text = `✗ Incorrect ! C'était ${data.correct_country}`;
+            text = `Incorrect. C'était ${data.correct_country}`;
         }
 
         text += `<br><small>Ville: ${data.city_name}</small>`;
@@ -419,15 +419,22 @@ function showFeedback(data) {
 function updateStats() {
     document.getElementById('score-display').textContent = gameState.score;
 
-    const hearts = '❤️'.repeat(gameState.lives) + '🖤'.repeat(5 - gameState.lives);
-    document.getElementById('lives-display').textContent = hearts;
+    const livesContainer = document.getElementById('lives-display');
+    let livesHTML = '';
+    for (let i = 0; i < 5; i++) {
+        if (i < gameState.lives) {
+            livesHTML += '<span class="life life-full"></span>';
+        } else {
+            livesHTML += '<span class="life life-empty"></span>';
+        }
+    }
+    livesContainer.innerHTML = livesHTML;
 
     const streakDisplay = document.getElementById('streak-display');
+    streakDisplay.textContent = gameState.streak;
     if (gameState.streak >= 3) {
-        streakDisplay.textContent = gameState.streak + ' 🔥';
         streakDisplay.classList.add('streak-active');
     } else {
-        streakDisplay.textContent = gameState.streak + ' 🔥';
         streakDisplay.classList.remove('streak-active');
     }
 }
@@ -454,7 +461,7 @@ async function endGame() {
             document.getElementById('final-score').textContent = saveData.final_score || gameState.score;
             document.getElementById('final-correct').textContent = saveData.correct_answers;
             document.getElementById('final-total').textContent = saveData.total_questions;
-            document.getElementById('final-streak').textContent = gameState.bestStreak + ' 🔥';
+            document.getElementById('final-streak').textContent = gameState.bestStreak;
         }
 
         const leaderboardResponse = await fetch('api.php', {
@@ -499,11 +506,11 @@ function displayLeaderboard(leaderboard) {
             ? Math.round((entry.correct_answers / entry.total_questions) * 100)
             : 0;
 
-        const medal = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
+        const rankClass = index < 3 ? ` class="rank-${index + 1}"` : '';
 
         html += `
             <tr${entry.player_name === gameState.playerName ? ' class="current-player"' : ''}>
-                <td>${medal}${index + 1}</td>
+                <td${rankClass}>${index + 1}</td>
                 <td>${entry.player_name}</td>
                 <td>${entry.final_score}</td>
                 <td>${entry.correct_answers}/${entry.total_questions} (${accuracy}%)</td>
