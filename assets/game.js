@@ -4,7 +4,21 @@ let gameState = {
     playerName: '',
     currentCity: null,
     score: 0,
-    lives: 5
+    lives: 5,
+    streak: 0,
+    bestStreak: 0,
+    difficulty: 'normal',
+    timerMode: false,
+    timerInterval: null,
+    timeRemaining: 15,
+    hintUsed: false,
+    hintsAvailable: ['continent', 'capital', 'population']
+};
+
+const DIFFICULTY_CONFIG = {
+    easy: { choices: 3, timerSeconds: 25, basePoints: 8 },
+    normal: { choices: 4, timerSeconds: 15, basePoints: 10 },
+    hard: { choices: 6, timerSeconds: 10, basePoints: 15 }
 };
 
 const welcomeScreen = document.getElementById('welcome-screen');
@@ -15,15 +29,27 @@ const loading = document.getElementById('loading');
 const startBtn = document.getElementById('start-btn');
 const nextBtn = document.getElementById('next-btn');
 const replayBtn = document.getElementById('replay-btn');
+const hintBtn = document.getElementById('hint-btn');
 
 const playerNameInput = document.getElementById('player-name');
+const timerModeCheckbox = document.getElementById('timer-mode');
+const difficultyBtns = document.querySelectorAll('.diff-btn');
 
 startBtn.addEventListener('click', startGame);
 nextBtn.addEventListener('click', loadNextQuestion);
 replayBtn.addEventListener('click', () => location.reload());
+hintBtn.addEventListener('click', useHint);
 
 playerNameInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') startGame();
+});
+
+difficultyBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        difficultyBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        gameState.difficulty = btn.dataset.difficulty;
+    });
 });
 
 async function startGame() {
@@ -35,6 +61,10 @@ async function startGame() {
     }
 
     gameState.playerName = playerName;
+    gameState.timerMode = timerModeCheckbox.checked;
+    gameState.streak = 0;
+    gameState.bestStreak = 0;
+
     showLoading();
 
     try {
@@ -43,7 +73,9 @@ async function startGame() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'start_session',
-                player_name: playerName
+                player_name: playerName,
+                difficulty: gameState.difficulty,
+                timer_mode: gameState.timerMode
             })
         });
 
@@ -56,6 +88,15 @@ async function startGame() {
             gameState.lives = 5;
 
             document.getElementById('player-display').textContent = playerName;
+            updateStats();
+
+            const timerContainer = document.getElementById('timer-bar-container');
+            if (gameState.timerMode) {
+                timerContainer.classList.remove('hidden');
+            } else {
+                timerContainer.classList.add('hidden');
+            }
+
             switchScreen('game');
             loadNextQuestion();
         } else {
@@ -70,14 +111,26 @@ async function startGame() {
 
 async function loadNextQuestion() {
     showLoading();
+    stopTimer();
     document.getElementById('feedback-overlay').classList.add('hidden');
+    gameState.hintUsed = false;
+
+    const hintDisplay = document.getElementById('hint-display');
+    hintDisplay.classList.add('hidden');
+    hintDisplay.innerHTML = '';
+    hintBtn.disabled = false;
+    hintBtn.classList.remove('used');
 
     try {
+        const config = DIFFICULTY_CONFIG[gameState.difficulty];
+
         const response = await fetch('api.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                action: 'get_question'
+                action: 'get_question',
+                difficulty: gameState.difficulty,
+                num_choices: config.choices
             })
         });
 
@@ -85,8 +138,13 @@ async function loadNextQuestion() {
 
         if (data.success) {
             gameState.currentCity = data.city;
+            gameState.currentHints = data.hints || {};
             displayQuestion(data.city, data.images, data.choices);
             hideLoading();
+
+            if (gameState.timerMode) {
+                startTimer();
+            }
         } else {
             alert('Erreur: ' + data.error);
             hideLoading();
@@ -135,11 +193,109 @@ function displayQuestion(city, images, choices) {
     });
 }
 
+function startTimer() {
+    const config = DIFFICULTY_CONFIG[gameState.difficulty];
+    gameState.timeRemaining = config.timerSeconds;
+
+    const timerBar = document.getElementById('timer-bar');
+    const timerText = document.getElementById('timer-text');
+
+    timerBar.style.width = '100%';
+    timerBar.className = 'timer-bar';
+    timerText.textContent = gameState.timeRemaining + 's';
+
+    gameState.timerInterval = setInterval(() => {
+        gameState.timeRemaining--;
+
+        const percentage = (gameState.timeRemaining / config.timerSeconds) * 100;
+        timerBar.style.width = percentage + '%';
+        timerText.textContent = gameState.timeRemaining + 's';
+
+        if (percentage <= 33) {
+            timerBar.className = 'timer-bar timer-danger';
+        } else if (percentage <= 66) {
+            timerBar.className = 'timer-bar timer-warning';
+        }
+
+        if (gameState.timeRemaining <= 0) {
+            stopTimer();
+            handleTimeOut();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+    }
+}
+
+function handleTimeOut() {
+    const buttons = document.querySelectorAll('.btn-choice');
+    buttons.forEach(btn => btn.disabled = true);
+
+    gameState.lives--;
+    gameState.streak = 0;
+    updateStats();
+
+    showFeedback({
+        is_correct: false,
+        correct_country: gameState.currentCity.country_name,
+        city_name: gameState.currentCity.name,
+        timeout: true
+    });
+
+    if (gameState.lives <= 0) {
+        setTimeout(() => endGame(), 2000);
+    }
+}
+
+function useHint() {
+    if (gameState.hintUsed || gameState.score < 2) {
+        if (gameState.score < 2) {
+            alert('Vous avez besoin d\'au moins 2 points pour utiliser un indice');
+        }
+        return;
+    }
+
+    gameState.hintUsed = true;
+    gameState.score = Math.max(0, gameState.score - 2);
+    updateStats();
+
+    hintBtn.disabled = true;
+    hintBtn.classList.add('used');
+
+    const hintDisplay = document.getElementById('hint-display');
+    const hints = gameState.currentHints;
+
+    let hintText = '';
+    if (hints.continent) {
+        hintText = `🌍 Continent : <strong>${hints.continent}</strong>`;
+    } else if (hints.region) {
+        hintText = `📍 Région : <strong>${hints.region}</strong>`;
+    } else {
+        hintText = `🏙️ Cette ville commence par la lettre <strong>${gameState.currentCity.name.charAt(0)}</strong>`;
+    }
+
+    hintDisplay.innerHTML = hintText;
+    hintDisplay.classList.remove('hidden');
+    hintDisplay.classList.add('hint-animation');
+}
+
 async function submitAnswer(answer) {
     const buttons = document.querySelectorAll('.btn-choice');
     buttons.forEach(btn => btn.disabled = true);
 
+    stopTimer();
     showLoading();
+
+    const config = DIFFICULTY_CONFIG[gameState.difficulty];
+    let timeBonus = 0;
+
+    if (gameState.timerMode && gameState.timeRemaining > 0) {
+        timeBonus = Math.floor(gameState.timeRemaining / 3);
+    }
 
     try {
         const response = await fetch('api.php', {
@@ -149,20 +305,40 @@ async function submitAnswer(answer) {
                 action: 'submit_answer',
                 session_id: gameState.sessionId,
                 city_id: gameState.currentCity.id,
-                answer: answer
+                answer: answer,
+                time_bonus: timeBonus,
+                streak: gameState.streak,
+                hint_used: gameState.hintUsed
             })
         });
 
         const data = await response.json();
 
         if (data.success) {
-            gameState.score = data.new_score;
-            gameState.lives = data.lives_remaining;
+            if (data.is_correct) {
+                gameState.streak++;
+                if (gameState.streak > gameState.bestStreak) {
+                    gameState.bestStreak = gameState.streak;
+                }
+
+                let points = config.basePoints + timeBonus;
+                if (gameState.streak >= 3) {
+                    points += Math.floor(gameState.streak / 3) * 5;
+                    data.streak_bonus = Math.floor(gameState.streak / 3) * 5;
+                }
+
+                gameState.score += points;
+                data.points_earned = points;
+                data.time_bonus = timeBonus;
+            } else {
+                gameState.streak = 0;
+                gameState.lives--;
+            }
 
             updateStats();
             showFeedback(data);
 
-            if (data.game_over) {
+            if (gameState.lives <= 0) {
                 setTimeout(() => endGame(), 2000);
             }
         } else {
@@ -186,7 +362,24 @@ function showFeedback(data) {
 
     if (data.is_correct) {
         feedback.classList.add('correct');
-        feedbackText.textContent = ` Correct ! C'était bien ${data.correct_country}`;
+        let text = `✓ Correct ! C'était bien ${data.correct_country}`;
+
+        if (data.points_earned) {
+            text += `<br><span class="points-earned">+${data.points_earned} pts</span>`;
+
+            if (data.time_bonus > 0) {
+                text += `<span class="bonus-detail"> (dont +${data.time_bonus} bonus temps)</span>`;
+            }
+            if (data.streak_bonus > 0) {
+                text += `<span class="bonus-detail"> (+${data.streak_bonus} bonus série)</span>`;
+            }
+        }
+
+        if (gameState.streak >= 3) {
+            text += `<br><span class="streak-message">🔥 Série de ${gameState.streak} !</span>`;
+        }
+
+        feedbackText.innerHTML = text;
 
         const buttons = document.querySelectorAll('.btn-choice');
         buttons.forEach(btn => {
@@ -196,7 +389,16 @@ function showFeedback(data) {
         });
     } else {
         feedback.classList.add('incorrect');
-        feedbackText.innerHTML = ` Incorrect ! C'était ${data.correct_country}<br><small>Ville: ${data.city_name}</small>`;
+        let text = '';
+
+        if (data.timeout) {
+            text = `⏱️ Temps écoulé ! C'était ${data.correct_country}`;
+        } else {
+            text = `✗ Incorrect ! C'était ${data.correct_country}`;
+        }
+
+        text += `<br><small>Ville: ${data.city_name}</small>`;
+        feedbackText.innerHTML = text;
 
         const buttons = document.querySelectorAll('.btn-choice');
         buttons.forEach(btn => {
@@ -219,10 +421,20 @@ function updateStats() {
 
     const hearts = '❤️'.repeat(gameState.lives) + '🖤'.repeat(5 - gameState.lives);
     document.getElementById('lives-display').textContent = hearts;
+
+    const streakDisplay = document.getElementById('streak-display');
+    if (gameState.streak >= 3) {
+        streakDisplay.textContent = gameState.streak + ' 🔥';
+        streakDisplay.classList.add('streak-active');
+    } else {
+        streakDisplay.textContent = gameState.streak + ' 🔥';
+        streakDisplay.classList.remove('streak-active');
+    }
 }
 
 async function endGame() {
     showLoading();
+    stopTimer();
 
     try {
         const saveResponse = await fetch('api.php', {
@@ -230,16 +442,19 @@ async function endGame() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'save_score',
-                session_id: gameState.sessionId
+                session_id: gameState.sessionId,
+                final_score: gameState.score,
+                best_streak: gameState.bestStreak
             })
         });
 
         const saveData = await saveResponse.json();
 
         if (saveData.success) {
-            document.getElementById('final-score').textContent = saveData.final_score;
+            document.getElementById('final-score').textContent = saveData.final_score || gameState.score;
             document.getElementById('final-correct').textContent = saveData.correct_answers;
             document.getElementById('final-total').textContent = saveData.total_questions;
+            document.getElementById('final-streak').textContent = gameState.bestStreak + ' 🔥';
         }
 
         const leaderboardResponse = await fetch('api.php', {
@@ -284,9 +499,11 @@ function displayLeaderboard(leaderboard) {
             ? Math.round((entry.correct_answers / entry.total_questions) * 100)
             : 0;
 
+        const medal = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
+
         html += `
-            <tr>
-                <td>${index + 1}</td>
+            <tr${entry.player_name === gameState.playerName ? ' class="current-player"' : ''}>
+                <td>${medal}${index + 1}</td>
                 <td>${entry.player_name}</td>
                 <td>${entry.final_score}</td>
                 <td>${entry.correct_answers}/${entry.total_questions} (${accuracy}%)</td>

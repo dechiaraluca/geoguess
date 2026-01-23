@@ -4,9 +4,11 @@
  * Enregistre le score final d'une session
  * @param int $sessionId - ID de la session
  * @param PDO $pdo - Connexion à la base de données
+ * @param int|null $finalScore - Score final (optionnel, calculé côté client avec bonus)
+ * @param int $bestStreak - Meilleure série de bonnes réponses
  * @return array - Résultat de l'enregistrement
  */
-function saveFinalScore($sessionId, $pdo) {
+function saveFinalScore($sessionId, $pdo, $finalScore = null, $bestStreak = 0) {
     try {
         $stmt = $pdo->prepare("
             SELECT id_player, current_score, lives_remaining, status
@@ -21,7 +23,12 @@ function saveFinalScore($sessionId, $pdo) {
         }
 
         if ($session['status'] !== 'completed') {
-            return ['success' => false, 'error' => 'La session n\'est pas terminée'];
+            $stmt = $pdo->prepare("
+                UPDATE game_sessions
+                SET status = 'completed', ended_at = NOW()
+                WHERE id_session = :id
+            ");
+            $stmt->execute(['id' => $sessionId]);
         }
 
         $stmt = $pdo->prepare("SELECT id_score FROM scores WHERE id_session = :id");
@@ -42,6 +49,8 @@ function saveFinalScore($sessionId, $pdo) {
 
         $livesUsed = 5 - $session['lives_remaining'];
 
+        $scoreToSave = $finalScore !== null ? $finalScore : $session['current_score'];
+
         $stmt = $pdo->prepare("
             INSERT INTO scores (
                 id_player, id_session, final_score,
@@ -55,7 +64,7 @@ function saveFinalScore($sessionId, $pdo) {
         $stmt->execute([
             'player' => $session['id_player'],
             'session' => $sessionId,
-            'score' => $session['current_score'],
+            'score' => $scoreToSave,
             'total' => $stats['total_questions'],
             'correct' => $stats['correct_answers'],
             'lives' => $livesUsed
@@ -64,10 +73,11 @@ function saveFinalScore($sessionId, $pdo) {
         return [
             'success' => true,
             'score_id' => $pdo->lastInsertId(),
-            'final_score' => $session['current_score'],
+            'final_score' => $scoreToSave,
             'total_questions' => $stats['total_questions'],
             'correct_answers' => $stats['correct_answers'],
-            'lives_used' => $livesUsed
+            'lives_used' => $livesUsed,
+            'best_streak' => $bestStreak
         ];
 
     } catch (PDOException $e) {

@@ -246,6 +246,84 @@ function getSessionState($sessionId, $pdo) {
 }
 
 /**
+ * Récupère des indices pour un pays
+ * @param int $countryId - ID du pays
+ * @param PDO $pdo - Connexion à la base de données
+ * @return array - Indices disponibles
+ */
+function getHintsForCountry($countryId, $pdo) {
+    $continents = [
+        'France' => 'Europe',
+        'Italie' => 'Europe',
+        'Italy' => 'Europe',
+        'Espagne' => 'Europe',
+        'Spain' => 'Europe',
+        'Allemagne' => 'Europe',
+        'Germany' => 'Europe',
+        'Royaume-Uni' => 'Europe',
+        'United Kingdom' => 'Europe',
+        'Japon' => 'Asie',
+        'Japan' => 'Asie',
+        'États-Unis' => 'Amérique du Nord',
+        'United States' => 'Amérique du Nord',
+        'Canada' => 'Amérique du Nord',
+        'Brésil' => 'Amérique du Sud',
+        'Brazil' => 'Amérique du Sud',
+        'Australie' => 'Océanie',
+        'Australia' => 'Océanie',
+        'Chine' => 'Asie',
+        'China' => 'Asie',
+        'Inde' => 'Asie',
+        'India' => 'Asie',
+        'Mexique' => 'Amérique du Nord',
+        'Mexico' => 'Amérique du Nord',
+        'Argentine' => 'Amérique du Sud',
+        'Argentina' => 'Amérique du Sud',
+        'Russie' => 'Europe/Asie',
+        'Russia' => 'Europe/Asie',
+        'Corée du Sud' => 'Asie',
+        'South Korea' => 'Asie',
+        'Pays-Bas' => 'Europe',
+        'Netherlands' => 'Europe',
+        'Belgique' => 'Europe',
+        'Belgium' => 'Europe',
+        'Suisse' => 'Europe',
+        'Switzerland' => 'Europe',
+        'Portugal' => 'Europe',
+        'Grèce' => 'Europe',
+        'Greece' => 'Europe',
+        'Suède' => 'Europe',
+        'Sweden' => 'Europe',
+        'Norvège' => 'Europe',
+        'Norway' => 'Europe',
+        'Pologne' => 'Europe',
+        'Poland' => 'Europe',
+        'Autriche' => 'Europe',
+        'Austria' => 'Europe',
+    ];
+
+    try {
+        $stmt = $pdo->prepare("SELECT name FROM countries WHERE id_country = :id");
+        $stmt->execute(['id' => $countryId]);
+        $country = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$country) {
+            return [];
+        }
+
+        $countryName = $country['name'];
+        $continent = isset($continents[$countryName]) ? $continents[$countryName] : 'Monde';
+
+        return [
+            'continent' => $continent
+        ];
+
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+/**
  * Récupère une liste de pays pour le choix multiple
  * @param int $correctCountryId - ID du pays correct
  * @param PDO $pdo - Connexion à la base de données

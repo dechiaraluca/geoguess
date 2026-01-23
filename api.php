@@ -55,6 +55,11 @@ function handleStartSession($input, $pdo) {
 }
 
 function handleGetQuestion($pdo) {
+    global $input;
+
+    $numChoices = isset($input['num_choices']) ? (int)$input['num_choices'] : 4;
+    $numChoices = max(3, min(6, $numChoices));
+
     $cityResult = getRandomCityWithImages($pdo);
 
     if (!$cityResult['success']) {
@@ -64,18 +69,21 @@ function handleGetQuestion($pdo) {
 
     $city = $cityResult['city'];
     $images = $cityResult['images'];
-    $choicesResult = getCountryChoices($city['country_id'], $pdo, 4);
+    $choicesResult = getCountryChoices($city['country_id'], $pdo, $numChoices);
 
     if (!$choicesResult['success']) {
         echo json_encode($choicesResult);
         return;
     }
 
+    $hints = getHintsForCountry($city['country_id'], $pdo);
+
     echo json_encode([
         'success' => true,
         'city' => $city,
         'images' => $images,
-        'choices' => $choicesResult['choices']
+        'choices' => $choicesResult['choices'],
+        'hints' => $hints
     ]);
 }
 
@@ -95,13 +103,15 @@ function handleSubmitAnswer($input, $pdo) {
 
 function handleSaveScore($input, $pdo) {
     $sessionId = $input['session_id'] ?? 0;
+    $finalScore = $input['final_score'] ?? null;
+    $bestStreak = $input['best_streak'] ?? 0;
 
     if (empty($sessionId)) {
         echo json_encode(['success' => false, 'error' => 'Session ID requis']);
         return;
     }
 
-    $result = saveFinalScore($sessionId, $pdo);
+    $result = saveFinalScore($sessionId, $pdo, $finalScore, $bestStreak);
     echo json_encode($result);
 }
 

@@ -21,6 +21,29 @@
                     <li>Le jeu se termine quand vous n'avez plus de vies</li>
                 </ul>
 
+                <div class="options-section">
+                    <div class="option-group">
+                        <label>Difficulté</label>
+                        <div class="difficulty-selector">
+                            <button type="button" class="diff-btn" data-difficulty="easy">Facile</button>
+                            <button type="button" class="diff-btn active" data-difficulty="normal">Normal</button>
+                            <button type="button" class="diff-btn" data-difficulty="hard">Difficile</button>
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <label>Mode chrono</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="timer-mode" class="toggle-input">
+                            <label for="timer-mode" class="toggle-label">
+                                <span class="toggle-text-off">Désactivé</span>
+                                <span class="toggle-text-on">Activé</span>
+                            </label>
+                        </div>
+                        <small class="option-hint">Répondez vite pour des bonus !</small>
+                    </div>
+                </div>
+
                 <div class="input-group">
                     <input type="text" id="player-name" placeholder="Votre nom" maxlength="20">
                     <button id="start-btn" class="btn btn-primary">Commencer</button>
@@ -41,16 +64,32 @@
                     <span id="score-display" class="value">0</span>
                 </div>
                 <div class="stat">
+                    <span class="label">Série:</span>
+                    <span id="streak-display" class="value">0 🔥</span>
+                </div>
+                <div class="stat">
                     <span class="label">Vies:</span>
                     <span id="lives-display" class="value">❤️❤️❤️❤️❤️</span>
                 </div>
+            </div>
+
+            <div id="timer-bar-container" class="timer-bar-container hidden">
+                <div id="timer-bar" class="timer-bar"></div>
+                <span id="timer-text" class="timer-text">15s</span>
             </div>
 
             <div class="images-grid" id="images-grid">
             </div>
 
             <div class="question-box">
-                <h2>De quel pays viennent ces images ?</h2>
+                <div class="question-header">
+                    <h2>De quel pays viennent ces images ?</h2>
+                    <button id="hint-btn" class="btn btn-hint" title="Utiliser un indice (-2 pts)">
+                        💡 Indice
+                    </button>
+                </div>
+
+                <div id="hint-display" class="hint-display hidden"></div>
 
                 <div class="choices" id="choices-container">
                 </div>
@@ -82,6 +121,10 @@
                     <div class="stat-item">
                         <span class="stat-label">Total questions</span>
                         <span class="stat-value" id="final-total">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Meilleure série</span>
+                        <span class="stat-value" id="final-streak">0 🔥</span>
                     </div>
                 </div>
 
